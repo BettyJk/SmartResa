@@ -173,3 +173,26 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend'
 ]
 LOGIN_REDIRECT_URL = '/'
+CELERY_BEAT_SCHEDULE = {
+    'check-reservations-every-5-min': {
+        'task': 'dashboard.tasks.check_reservation_expiry',
+        'schedule': 300.0,  # 5 minutes
+    },
+    'update-seat-blocks-hourly': {
+        'task': 'dashboard.tasks.auto_block_seats',
+        'schedule': 3600.0,  # 1 hour
+    },
+}
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_TIMEZONE = 'Africa/Casablanca'
+CELERY_BEAT_SCHEDULE = {
+    'check-reservations': {
+        'task': 'dashboard.tasks.check_reservation_expiry',
+        'schedule': 300.0,  # 5 minutes
+    },
+    'auto-block-seats': {
+        'task': 'dashboard.tasks.auto_block_seats',
+        'schedule': 3600.0,  # 1 hour
+    },
+}

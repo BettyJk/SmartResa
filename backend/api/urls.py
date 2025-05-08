@@ -6,7 +6,7 @@ from .views import rfid_access_check
 urlpatterns = [
     # We'll add actual endpoints later
     path('test/', views.test_api, name='test-api'),
-    path('rfid/access/', rfid_access_check, name='rfid-access-check'),
+    path('rfid/access/', rfid_access_check, name='rfid_access'),
 ]
 
 # api/views.py

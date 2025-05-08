@@ -6,7 +6,12 @@ from django.shortcuts import render
 from django.http import HttpResponse
 import csv
 from ..models import Seat, Reservation
-
+from django.contrib.admin.views.decorators import staff_member_required
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
+from datetime import timedelta
+from ..forms import BlockSeatForm
+from ..models import Seat
 def admin_dashboard(request):
     # Seat statistics using aggregation
     seat_stats = Seat.objects.aggregate(
@@ -60,3 +65,21 @@ def export_reservations_csv(request):
         ])
     
     return response
+@staff_member_required
+def block_seat(request, seat_id):
+    seat = get_object_or_404(Seat, id=seat_id)
+    
+    if request.method == 'POST':
+        form = BlockSeatForm(request.POST)
+        if form.is_valid():
+            seat.status = 'blocked'
+            seat.blocked_reason = form.cleaned_data['reason']
+            seat.blocked_until = timezone.now() + timedelta(
+                hours=form.cleaned_data['duration']
+            )
+            seat.save()
+            return redirect('admin_dashboard')
+    else:
+        form = BlockSeatForm()
+    
+    return render(request, 'admin/block_seat.html', {'form': form, 'seat': seat})

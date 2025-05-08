@@ -129,3 +129,10 @@ class ReservationForm(forms.ModelForm):
                 self.add_error(None, "Minimum reservation time is 30 minutes")
 
         return cleaned_data
+class BlockSeatForm(forms.Form):
+    reason = forms.CharField(widget=forms.Textarea(attrs={'rows': 3}))
+    duration = forms.IntegerField(
+        label="Block Duration (hours)",
+        min_value=1,
+        max_value=72
+    )

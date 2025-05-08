@@ -74,6 +74,11 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
+from django.db import models
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+from django.utils import timezone
+
 class Seat(models.Model):
     STATUS_CHOICES = [
         ('available', 'Available'),
@@ -93,15 +98,27 @@ class Seat(models.Model):
 
     def __str__(self):
         return f"{self.number} ({self.get_status_display()})"
+
     def save(self, *args, **kwargs):
+        old_status = self.status
         super().save(*args, **kwargs)
+        
+        # Get active reservation if exists
+        reservation = self.reservation_set.filter(
+            end_time__gte=timezone.now()
+        ).first()
+
         # Notify WebSocket group on status change
         channel_layer = get_channel_layer()
-        async_to_sync(channel_layer.group_send)("seats", {
-            "type": "seat.update",
-            "number": self.number,
-            "status": self.status
-        })
+        async_to_sync(channel_layer.group_send)(
+            "seats",
+            {
+                "type": "seat.update",
+                "number": self.number,
+                "status": self.status,
+                "end_time": str(reservation.end_time) if reservation else None
+            }
+        )
 class Reservation(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     seat = models.ForeignKey(Seat, on_delete=models.CASCADE)
