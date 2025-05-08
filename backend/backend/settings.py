@@ -165,3 +165,11 @@ CHANNEL_LAYERS = {
 }
 
 CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Same here
+AUTH_USER_MODEL = 'dashboard.CustomUser'
+# settings.py
+AUTH_USER_MODEL = 'dashboard.CustomUser'
+AUTHENTICATION_BACKENDS = [
+    'dashboard.backends.EmailAuthBackend',
+    'django.contrib.auth.backends.ModelBackend'
+]
+LOGIN_REDIRECT_URL = '/'

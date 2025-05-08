@@ -34,12 +34,21 @@
                                 <div class="form-group">
                                     <label class="form-label">Email *</label>
                                     {{ form.email }}
+                                    {% if form.email.errors %}
+                                        <div class="text-danger">{{ form.email.errors }}</div>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">Password *</label>
-                                    {{ form.password }}
+                                    {{ form.password1 }}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label class="form-label">Confirm Password *</label>
+                                    {{ form.password2 }}
                                 </div>
                             </div>
                         </div>
@@ -98,7 +107,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const studentFields = document.getElementById('student-fields');
 
     function toggleStudentFields() {
-        const isStudent = document.querySelector('input[name="role"]:checked').value === 'student';
+        const isStudent = document.querySelector('input[name="role"]:checked')?.value === 'student';
         studentFields.classList.toggle('d-none', !isStudent);
         studentFields.querySelectorAll('input, select').forEach(field => {
             field.required = isStudent;
